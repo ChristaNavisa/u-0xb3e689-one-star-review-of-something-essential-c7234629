@@ -12,17 +12,26 @@ const REVIEW =
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 const outFile = join(outDir, "entry.txt");
 
-const chars = [...REVIEW];
-if (chars.length < 1 || chars.length > 160) {
-  throw new Error(`review must be 1-160 characters, got ${chars.length}`);
-}
-if (REVIEW.includes("\n") || REVIEW.includes("\r")) {
-  throw new Error("review must be a single line");
-}
-if (REVIEW.trim().length === 0) {
-  throw new Error("review must not be only whitespace");
+function validateReview(review: string): string[] {
+  const chars = [...review];
+  if (chars.length < 1 || chars.length > 160) {
+    throw new Error(`review must be 1-160 characters, got ${chars.length}`);
+  }
+  if (review.includes("\n") || review.includes("\r")) {
+    throw new Error("review must be a single line");
+  }
+  if (review.trim().length === 0) {
+    throw new Error("review must not be only whitespace");
+  }
+  return chars;
 }
 
-mkdirSync(outDir, { recursive: true });
-writeFileSync(outFile, REVIEW, "utf8");
+const chars = validateReview(REVIEW);
+
+function writeEntry(dir: string, file: string, text: string): void {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(file, text, "utf8");
+}
+
+writeEntry(outDir, outFile, REVIEW);
 console.log(`wrote ${chars.length} characters to ${outFile}`);
